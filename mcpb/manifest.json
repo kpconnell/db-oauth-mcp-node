@@ -1,0 +1,65 @@
+{
+  "dxt_version": "0.1",
+  "name": "db-oauth-mcp",
+  "display_name": "Database (OAuth MCP)",
+  "version": "{{VERSION}}",
+  "description": "OAuth-authenticated read-only database access for Claude Desktop (MariaDB and SQL Server). The server runs the OAuth flow against your configured provider and uses the short-lived per-connection credentials it returns.",
+  "author": { "name": "kpconnell", "url": "https://github.com/kpconnell/db-oauth-mcp-node" },
+  "homepage": "https://github.com/kpconnell/db-oauth-mcp-node",
+  "icon": "icon.png",
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/index.js"],
+      "env": {
+        "OAUTH_AUTHORIZE_URL": "${user_config.oauth_authorize_url}",
+        "OAUTH_API_BASE_URL": "${user_config.oauth_api_base_url}",
+        "OAUTH_CLIENT_ID": "${user_config.oauth_client_id}",
+        "OAUTH_SCOPE": "${user_config.oauth_scope}",
+        "LOG_LEVEL": "${user_config.log_level}",
+        "QUERY_ROW_LIMIT": "${user_config.row_limit}"
+      }
+    }
+  },
+  "user_config": {
+    "oauth_authorize_url": {
+      "type": "string",
+      "title": "OAuth authorize URL",
+      "description": "Full URL the browser opens to start the PKCE flow (e.g. https://auth.example.com/mcp/authorize). Required.",
+      "default": ""
+    },
+    "oauth_api_base_url": {
+      "type": "string",
+      "title": "OAuth API base URL",
+      "description": "Base URL for token/refresh/revoke calls from this server (e.g. https://api.example.com). Required.",
+      "default": ""
+    },
+    "oauth_client_id": {
+      "type": "string",
+      "title": "OAuth client ID",
+      "default": "claude-desktop-mcp"
+    },
+    "oauth_scope": {
+      "type": "string",
+      "title": "OAuth scope",
+      "default": "db:read"
+    },
+    "log_level": {
+      "type": "string",
+      "title": "Log level",
+      "default": "info",
+      "enum": ["debug", "info", "warn", "error"]
+    },
+    "row_limit": {
+      "type": "string",
+      "title": "Max rows per query",
+      "default": "1000"
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": ["darwin-arm64", "darwin-x64", "win32-x64", "linux-x64"]
+  }
+}
