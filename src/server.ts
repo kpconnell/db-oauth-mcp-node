@@ -18,7 +18,7 @@ import { PoolManager } from './pool/manager.js';
 import type { Deps } from './mcp/helpers.js';
 import { buildTools, type ToolDef } from './mcp/tools.js';
 
-const VERSION = '0.3.0-dev';
+const VERSION = '0.3.0';
 
 async function main(): Promise<void> {
   const cfg = loadConfig();

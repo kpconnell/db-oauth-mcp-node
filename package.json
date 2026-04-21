@@ -1,6 +1,6 @@
 {
   "name": "db-oauth-mcp",
-  "version": "0.3.0-dev",
+  "version": "0.3.0",
   "description": "OAuth-authenticated read-only database access for Claude Desktop (MariaDB + SQL Server).",
   "license": "MIT",
   "type": "module",
