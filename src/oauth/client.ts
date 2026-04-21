@@ -56,7 +56,7 @@ export class OAuthClient {
     try {
       parsed = JSON.parse(respText);
     } catch (e) {
-      throw new Error(`decode token response: ${(e as Error).message}`);
+      throw new Error(`decode token response: ${(e as Error).message}`, { cause: e });
     }
     const tr = parseTokenResponse(parsed);
 
