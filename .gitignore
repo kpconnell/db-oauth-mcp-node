@@ -1,0 +1,12 @@
+node_modules/
+dist/
+staging/
+dist-mcpb/
+*.mcpb
+.DS_Store
+.vscode/
+.idea/
+*.log
+.env
+.env.*
+.claude/

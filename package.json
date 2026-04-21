@@ -1,0 +1,47 @@
+{
+  "name": "db-oauth-mcp",
+  "version": "0.3.0-dev",
+  "description": "OAuth-authenticated read-only database access for Claude Desktop (MariaDB + SQL Server).",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "db-oauth-mcp": "dist/server.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist staging",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.0",
+    "mssql": "^11.0.1",
+    "mysql2": "^3.11.5",
+    "open": "^10.1.0",
+    "pino": "^9.5.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/mssql": "^9.1.5",
+    "@types/node": "^22.9.0",
+    "@typescript-eslint/eslint-plugin": "^8.16.0",
+    "@typescript-eslint/parser": "^8.16.0",
+    "eslint": "^9.15.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "zod": "^3.25.0 <4"
+    }
+  }
+}
