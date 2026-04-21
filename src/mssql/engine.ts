@@ -91,21 +91,27 @@ export class MSSQLEngine implements Engine {
     return executeQuery(pool as ConnectionPool, sqlStr, rowLimit, timeoutMs);
   }
 
-  async listTables(pool: EnginePool, schemas: string[]): Promise<Table[]> {
+  async listTables(pool: EnginePool, _schemas: string[]): Promise<Table[]> {
+    // Note on `_schemas`: the OAuth contract passes `connection.databases`
+    // here, but for MSSQL those are *catalog* names (e.g. "VRP"), not
+    // schema names (e.g. "dbo"). Tables live in schemas within a catalog,
+    // so filtering INFORMATION_SCHEMA.TABLES by TABLE_SCHEMA against
+    // catalog names returns nothing. We ignore the hint and return every
+    // user table in the current catalog, excluding the well-known system
+    // schemas.
     const p = pool as ConnectionPool;
     const req = p.request();
-    let q =
-      "SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'";
-    if (schemas.length > 0) {
-      const placeholders: string[] = [];
-      schemas.forEach((s, i) => {
-        const name = `p${i + 1}`;
-        req.input(name, sql.NVarChar, s);
-        placeholders.push(`@${name}`);
-      });
-      q += ` AND TABLE_SCHEMA IN (${placeholders.join(',')})`;
-    }
-    q += ' ORDER BY 1, 2';
+    const q = `
+      SELECT TABLE_SCHEMA, TABLE_NAME
+      FROM INFORMATION_SCHEMA.TABLES
+      WHERE TABLE_TYPE = 'BASE TABLE'
+        AND TABLE_SCHEMA NOT IN ('sys', 'INFORMATION_SCHEMA',
+                                 'db_owner', 'db_accessadmin',
+                                 'db_securityadmin', 'db_ddladmin',
+                                 'db_backupoperator', 'db_datareader',
+                                 'db_datawriter', 'db_denydatareader',
+                                 'db_denydatawriter', 'guest')
+      ORDER BY 1, 2`;
     const r = await req.query<{ TABLE_SCHEMA: string; TABLE_NAME: string }>(q);
     return r.recordset.map((row) => ({
       schema: row.TABLE_SCHEMA,

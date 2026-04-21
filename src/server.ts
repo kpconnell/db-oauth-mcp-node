@@ -68,16 +68,31 @@ async function main(): Promise<void> {
     return result as unknown as CallToolResult;
   });
 
+  let shuttingDown = false;
   const shutdown = async (signal: string): Promise<void> => {
+    if (shuttingDown) return;
+    shuttingDown = true;
     logger.info({ signal }, 'shutting down');
-    await poolMgr.closeAll();
-    await server.close();
+    try {
+      await poolMgr.closeAll();
+      await server.close();
+    } catch (e) {
+      logger.warn({ err: (e as Error).message }, 'error during shutdown');
+    }
     process.exit(0);
   };
   process.on('SIGINT', () => void shutdown('SIGINT'));
   process.on('SIGTERM', () => void shutdown('SIGTERM'));
 
   const transport = new StdioServerTransport();
+
+  // MCP clients signal "we're done" by closing the server's stdin.
+  // The SDK's transport sees EOF and calls onclose, but Node's event
+  // loop keeps the process alive (pino, listeners). Attach shutdown
+  // explicitly so we exit cleanly rather than lingering as an orphan.
+  transport.onclose = () => void shutdown('transport-close');
+  process.stdin.once('end', () => void shutdown('stdin-end'));
+
   await server.connect(transport);
 }
 
